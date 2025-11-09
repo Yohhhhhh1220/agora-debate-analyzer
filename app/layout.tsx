@@ -26,6 +26,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: 'アゴラ - AIリアルタイムディベート分析サポート',
   description: 'AIリアルタイムディベート分析サポート。ディベートの正確性と論理性をAIがリアルタイムに判定・可視化します。',
+  icons: {
+    icon: '/favicon.png',
+    shortcut: '/favicon.png',
+    apple: '/favicon.png',
+  },
   openGraph: {
     title: 'アゴラ - AIリアルタイムディベート分析サポート',
     description: 'AIリアルタイムディベート分析サポート。ディベートの正確性と論理性をAIがリアルタイムに判定・可視化します。',
