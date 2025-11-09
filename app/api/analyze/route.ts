@@ -8,14 +8,13 @@ const openai = process.env.OPENAI_API_KEY
   ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
   : null
 
-// デバッグ用: 環境変数の状態を確認（本番環境では削除推奨）
-if (process.env.NODE_ENV === 'development') {
-  console.log('OpenAI API Key configured:', !!process.env.OPENAI_API_KEY)
-  console.log('OpenAI Model:', process.env.OPENAI_MODEL || 'gpt-4o-mini (default)')
-  if (process.env.OPENAI_MODEL) {
-    console.log('Using custom model from .env:', process.env.OPENAI_MODEL)
-  }
-}
+// デバッグ用: 環境変数の状態を確認
+console.log('[API] 環境変数の状態:', {
+  hasOpenAIKey: !!process.env.OPENAI_API_KEY,
+  openAIKeyLength: process.env.OPENAI_API_KEY?.length || 0,
+  openAIModel: process.env.OPENAI_MODEL || 'gpt-4o-mini (default)',
+  nodeEnv: process.env.NODE_ENV,
+})
 
 // OpenAI APIを使用した高度な分析
 async function analyzeWithOpenAI(text: string): Promise<Omit<AnalysisData, 'id' | 'timestamp'>> {
@@ -134,12 +133,15 @@ ${text}
       feedback: analysis.feedback || '分析を完了しました。',
     }
   } catch (error: any) {
-    console.error('OpenAI API error:', error)
-    console.error('Error details:', {
+    console.error('[API] OpenAI API error:', error)
+    console.error('[API] OpenAI API エラー詳細:', {
       message: error?.message,
       status: error?.status,
       code: error?.code,
+      name: error?.name,
+      type: error?.type,
       response: error?.response,
+      stack: error?.stack,
     })
     throw error
   }
@@ -236,11 +238,19 @@ async function analyzeDebateSimple(text: string): Promise<Omit<AnalysisData, 'id
 }
 
 export async function POST(request: NextRequest) {
+  console.log('[API] POST /api/analyze リクエストを受信')
   try {
     const body = await request.json()
     const { text } = body
     
+    console.log('[API] リクエストボディ:', { 
+      textLength: text?.length || 0, 
+      textType: typeof text,
+      hasText: !!text && typeof text === 'string' && text.trim().length > 0
+    })
+    
     if (!text || typeof text !== 'string' || text.trim().length === 0) {
+      console.error('[API] エラー: テキストが提供されていません')
       return NextResponse.json(
         { error: 'テキストが提供されていません' },
         { status: 400 }
@@ -253,25 +263,33 @@ export async function POST(request: NextRequest) {
     
     try {
       if (openai) {
-        console.log('Using OpenAI API for analysis...')
+        console.log('[API] OpenAI APIを使用して分析を開始...')
         analysis = await analyzeWithOpenAI(text)
         usedOpenAI = true
-        console.log('OpenAI API analysis completed successfully')
+        console.log('[API] OpenAI API分析が正常に完了しました')
       } else {
-        console.log('OpenAI API not configured, using simple analysis')
+        console.log('[API] OpenAI APIが設定されていないため、簡易分析を使用します')
         analysis = await analyzeDebateSimple(text)
       }
     } catch (error: any) {
-      console.error('Analysis error:', error)
-      console.error('Error details:', {
+      console.error('[API] 分析エラー:', error)
+      console.error('[API] エラー詳細:', {
         message: error?.message,
         status: error?.status,
         code: error?.code,
+        name: error?.name,
+        stack: error?.stack,
       })
       
       // OpenAI APIでエラーが発生した場合は簡易版にフォールバック
-      console.log('Falling back to simple analysis due to error')
-      analysis = await analyzeDebateSimple(text)
+      console.log('[API] エラーのため簡易分析にフォールバックします')
+      try {
+        analysis = await analyzeDebateSimple(text)
+        console.log('[API] 簡易分析が完了しました')
+      } catch (fallbackError) {
+        console.error('[API] 簡易分析でもエラーが発生:', fallbackError)
+        throw fallbackError
+      }
       
       // エラー情報をフィードバックに追加（開発環境のみ）
       if (process.env.NODE_ENV === 'development' && usedOpenAI) {
@@ -286,11 +304,21 @@ export async function POST(request: NextRequest) {
       ...analysis,
     }
     
+    console.log('[API] 分析結果を返却:', { 
+      id: analysisData.id, 
+      overall: analysisData.overall,
+      feedbackLength: analysisData.feedback?.length || 0
+    })
+    
     return NextResponse.json(analysisData)
   } catch (error) {
-    console.error('Analysis error:', error)
+    console.error('[API] 予期しないエラー:', error)
+    console.error('[API] エラー詳細:', {
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    })
     return NextResponse.json(
-      { error: '分析中にエラーが発生しました' },
+      { error: '分析中にエラーが発生しました', details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     )
   }

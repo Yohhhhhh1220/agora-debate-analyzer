@@ -29,6 +29,7 @@ export default function TeamDebateInput({
     const text = team === 'A' ? teamAText : teamBText
     if (!text.trim() || isAnalyzing) return
 
+    console.log(`チーム${team}の分析リクエストを送信します...`, { textLength: text.length })
     setIsAnalyzing(true)
     try {
       const response = await fetch('/api/analyze', {
@@ -39,11 +40,16 @@ export default function TeamDebateInput({
         body: JSON.stringify({ text }),
       })
 
+      console.log('APIレスポンスを受信:', { status: response.status, statusText: response.statusText, ok: response.ok })
+
       if (!response.ok) {
-        throw new Error('分析に失敗しました')
+        const errorData = await response.json().catch(() => ({ error: '不明なエラー' }))
+        console.error('APIエラーレスポンス:', errorData)
+        throw new Error(errorData.error || `分析に失敗しました (ステータス: ${response.status})`)
       }
 
       const data: AnalysisData = await response.json()
+      console.log('分析結果を受信:', data)
       
       if (team === 'A') {
         onTeamASubmit(data)
@@ -53,8 +59,12 @@ export default function TeamDebateInput({
         setTeamBText('')
       }
     } catch (error) {
-      console.error('Error analyzing debate:', error)
-      alert('分析中にエラーが発生しました')
+      console.error('分析エラー:', error)
+      console.error('エラー詳細:', {
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      })
+      alert(`分析中にエラーが発生しました: ${error instanceof Error ? error.message : '不明なエラー'}`)
     } finally {
       setIsAnalyzing(false)
     }
