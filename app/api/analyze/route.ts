@@ -265,7 +265,7 @@ export async function POST(request: NextRequest) {
     }
     
     // 分析実行（OpenAI APIが利用可能な場合はそれを使用、そうでなければ簡易版）
-    let analysis: Omit<AnalysisData, 'id' | 'timestamp'>
+    let analysis: Omit<AnalysisData, 'id' | 'timestamp'> | null = null
     let usedOpenAI = false
     let usedModel: string | null = null
     
@@ -299,7 +299,7 @@ export async function POST(request: NextRequest) {
         }
         
         // すべてのモデルで失敗した場合
-        if (!usedOpenAI) {
+        if (!usedOpenAI || !analysis) {
           throw lastError || new Error('すべてのモデルでアクセスに失敗しました')
         }
       } else {
@@ -328,15 +328,25 @@ export async function POST(request: NextRequest) {
       
       // エラー情報をフィードバックに追加（開発環境のみ）
       if (process.env.NODE_ENV === 'development' && usedOpenAI) {
-        analysis.feedback = `[注意: OpenAI APIエラーのため簡易分析を使用] ${analysis.feedback}`
+        if (analysis) {
+          analysis.feedback = `[注意: OpenAI APIエラーのため簡易分析を使用] ${analysis.feedback}`
+        }
       }
     }
+    
+    // analysisがnullの場合はエラー
+    if (!analysis) {
+      throw new Error('分析結果が取得できませんでした')
+    }
+    
+    // この時点でanalysisは確実に値を持っている
+    const finalAnalysis: Omit<AnalysisData, 'id' | 'timestamp'> = analysis
     
     // 完全なAnalysisDataオブジェクトを作成
     const analysisData: AnalysisData = {
       id: uuidv4(),
       timestamp: Date.now(),
-      ...analysis,
+      ...finalAnalysis,
     }
     
     console.log('[API] 分析結果を返却:', { 
