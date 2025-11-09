@@ -8,19 +8,25 @@ const openai = process.env.OPENAI_API_KEY
   ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
   : null
 
+// デフォルトモデルのリスト（優先順位順）
+const DEFAULT_MODELS = ['gpt-4o-mini-2024-07-18', 'gpt-3.5-turbo', 'gpt-4o-mini', 'gpt-4o', 'gpt-4-turbo']
+
 // デバッグ用: 環境変数の状態を確認
 console.log('[API] 環境変数の状態:', {
   hasOpenAIKey: !!process.env.OPENAI_API_KEY,
   openAIKeyLength: process.env.OPENAI_API_KEY?.length || 0,
-  openAIModel: process.env.OPENAI_MODEL || 'gpt-4o-mini (default)',
+  openAIModel: process.env.OPENAI_MODEL || 'gpt-4o-mini-2024-07-18 (default)',
   nodeEnv: process.env.NODE_ENV,
 })
 
 // OpenAI APIを使用した高度な分析
-async function analyzeWithOpenAI(text: string): Promise<Omit<AnalysisData, 'id' | 'timestamp'>> {
+async function analyzeWithOpenAI(text: string, modelName?: string): Promise<Omit<AnalysisData, 'id' | 'timestamp'>> {
   if (!openai) {
     throw new Error('OpenAI API key is not configured')
   }
+
+  // 使用するモデルを決定
+  const model = modelName || process.env.OPENAI_MODEL || 'gpt-4o-mini-2024-07-18'
 
   const prompt = `あなたはディベートの専門審査員です。以下のディベート内容を厳密に分析し、以下の観点で1-20点の範囲で評価してください。
 
@@ -75,8 +81,9 @@ ${text}
 }`
 
   try {
+    console.log(`[API] モデル "${model}" を使用して分析を開始...`)
     const completion = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-4o-mini', // .envファイルで指定されたモデルを使用
+      model: model,
       messages: [
         {
           role: 'system',
@@ -260,13 +267,41 @@ export async function POST(request: NextRequest) {
     // 分析実行（OpenAI APIが利用可能な場合はそれを使用、そうでなければ簡易版）
     let analysis: Omit<AnalysisData, 'id' | 'timestamp'>
     let usedOpenAI = false
+    let usedModel: string | null = null
     
     try {
       if (openai) {
         console.log('[API] OpenAI APIを使用して分析を開始...')
-        analysis = await analyzeWithOpenAI(text)
-        usedOpenAI = true
-        console.log('[API] OpenAI API分析が正常に完了しました')
+        
+        // モデルエラーの場合にフォールバックを試行
+        const modelsToTry = process.env.OPENAI_MODEL 
+          ? [process.env.OPENAI_MODEL, ...DEFAULT_MODELS.filter(m => m !== process.env.OPENAI_MODEL)]
+          : DEFAULT_MODELS
+        
+        let lastError: any = null
+        for (const modelToTry of modelsToTry) {
+          try {
+            analysis = await analyzeWithOpenAI(text, modelToTry)
+            usedModel = modelToTry
+            usedOpenAI = true
+            console.log(`[API] OpenAI API分析が正常に完了しました (使用モデル: ${modelToTry})`)
+            break
+          } catch (modelError: any) {
+            // モデルが利用できない場合（403エラー）は次のモデルを試す
+            if (modelError?.status === 403 && modelError?.code === 'model_not_found') {
+              console.warn(`[API] モデル "${modelToTry}" にアクセスできません。次のモデルを試します...`)
+              lastError = modelError
+              continue
+            }
+            // その他のエラーは即座にスロー
+            throw modelError
+          }
+        }
+        
+        // すべてのモデルで失敗した場合
+        if (!usedOpenAI) {
+          throw lastError || new Error('すべてのモデルでアクセスに失敗しました')
+        }
       } else {
         console.log('[API] OpenAI APIが設定されていないため、簡易分析を使用します')
         analysis = await analyzeDebateSimple(text)
