@@ -119,6 +119,143 @@ npm run dev
 
 Tailwind CSSを使用しているため、`tailwind.config.js` を編集することで、色やスタイルを簡単にカスタマイズできます。
 
+## デプロイ
+
+### Vercelへのデプロイ（推奨）
+
+VercelはNext.jsアプリケーションのデプロイに最適です。以下の手順でデプロイできます。
+
+#### 1. Vercelアカウントの作成
+
+1. [Vercel](https://vercel.com/) にアクセス
+2. GitHubアカウントでサインアップ（推奨）またはメールアドレスで登録
+
+#### 2. プロジェクトをGitHubにプッシュ
+
+```bash
+# Gitリポジトリの初期化（まだの場合）
+git init
+git add .
+git commit -m "Initial commit"
+
+# GitHubにリポジトリを作成し、プッシュ
+git remote add origin https://github.com/your-username/your-repo-name.git
+git branch -M main
+git push -u origin main
+```
+
+#### 3. Vercelでプロジェクトをインポート
+
+**方法A: Vercel CLIを使用（推奨）**
+
+```bash
+# Vercel CLIをインストール
+npm i -g vercel
+
+# プロジェクトディレクトリで実行
+vercel
+
+# 初回デプロイ時は設定を確認
+# - Set up and deploy? → Yes
+# - Which scope? → アカウントを選択
+# - Link to existing project? → No
+# - Project name? → プロジェクト名を入力
+# - Directory? → ./
+# - Override settings? → No
+```
+
+**方法B: Vercel Dashboardを使用**
+
+1. [Vercel Dashboard](https://vercel.com/dashboard) にログイン
+2. 「Add New...」→「Project」をクリック
+3. GitHubリポジトリを選択
+4. プロジェクト設定：
+   - **Framework Preset**: Next.js（自動検出されるはず）
+   - **Root Directory**: `./`（デフォルト）
+   - **Build Command**: `npm run build`（自動検出）
+   - **Output Directory**: `.next`（自動検出）
+
+#### 4. 環境変数の設定
+
+**Vercel CLIを使用する場合:**
+
+```bash
+# 環境変数を設定
+vercel env add OPENAI_API_KEY
+vercel env add OPENAI_MODEL
+
+# 本番環境に反映
+vercel --prod
+```
+
+**Vercel Dashboardを使用する場合:**
+
+以下の環境変数を設定：
+
+- `OPENAI_API_KEY`: OpenAI APIキー（オプション）
+- `OPENAI_MODEL`: 使用するモデル（例: `gpt-4o-mini`）（オプション）
+
+**設定方法:**
+1. プロジェクトの「Settings」→「Environment Variables」
+2. 変数名と値を入力
+3. 「Save」をクリック
+
+#### 5. デプロイの実行
+
+**Vercel CLIを使用する場合:**
+
+```bash
+# 本番環境にデプロイ
+vercel --prod
+```
+
+**Vercel Dashboardを使用する場合:**
+
+1. 「Deploy」ボタンをクリック
+2. ビルドが完了するまで待機（通常1-3分）
+3. デプロイ完了後、提供されたURLでアクセス可能
+
+#### 6. 今後の更新
+
+GitHubにプッシュすると、自動的にVercelで再デプロイされます。
+
+### その他のデプロイ方法
+
+#### Netlify
+
+1. [Netlify](https://www.netlify.com/) にアカウント作成
+2. GitHubリポジトリを接続
+3. ビルド設定：
+   - Build command: `npm run build`
+   - Publish directory: `.next`
+4. 環境変数を設定
+
+#### その他のプラットフォーム
+
+- **Railway**: [Railway](https://railway.app/)
+- **Render**: [Render](https://render.com/)
+- **AWS Amplify**: [AWS Amplify](https://aws.amazon.com/amplify/)
+
+## トラブルシューティング
+
+### ビルドエラー
+
+```bash
+# ローカルでビルドをテスト
+npm run build
+```
+
+### 環境変数が反映されない
+
+- Vercelダッシュボードで環境変数を再設定
+- デプロイを再実行
+
+### OpenAI APIエラー
+
+- APIキーが正しく設定されているか確認
+- APIキーの有効期限を確認
+- 使用量制限に達していないか確認
+
 ## ライセンス
 
 MIT
