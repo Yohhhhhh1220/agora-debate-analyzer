@@ -40,11 +40,11 @@ export default function AnalysisResults({ data }: AnalysisResultsProps) {
   }
 
   const metrics = [
-    { label: '論理性', value: data.logic, key: 'logic' },
-    { label: '証拠', value: data.evidence, key: 'evidence' },
-    { label: '重要性', value: data.impact, key: 'impact' },
-    { label: '明確性', value: data.clarity, key: 'clarity' },
-    { label: '反論耐性', value: data.robustness, key: 'robustness' },
+    { label: '理由の納得感', value: data.reason, key: 'reason' },
+    { label: '具体例・エピソード', value: data.example, key: 'example' },
+    { label: 'ユニークさ・新しい視点', value: data.uniqueness, key: 'uniqueness' },
+    { label: '言葉の分かりやすさ', value: data.clarity, key: 'clarity' },
+    { label: '相手への配慮・多角的な視点', value: data.respect, key: 'respect' },
   ]
 
   return (
@@ -98,4 +98,3 @@ export default function AnalysisResults({ data }: AnalysisResultsProps) {
     </div>
   )
 }
-

@@ -40,11 +40,11 @@ export default function TeamComparison({ comparison }: TeamComparisonProps) {
   const formatScore = (score: number) => score.toFixed(1)
 
   const metrics = [
-    { key: 'logic', label: '論理性' },
-    { key: 'evidence', label: '証拠' },
-    { key: 'impact', label: '重要性' },
+    { key: 'reason', label: '理由の納得感' },
+    { key: 'example', label: '具体例・エピソード' },
+    { key: 'uniqueness', label: 'ユニークさ・新しい視点' },
     { key: 'clarity', label: '明確性' },
-    { key: 'robustness', label: '反論耐性' },
+    { key: 'respect', label: '相手への配慮・多角的な視点' },
   ] as const
 
   return (

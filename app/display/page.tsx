@@ -48,20 +48,20 @@ export default function DisplayPage() {
     const calculateAverage = (data: AnalysisData[]) => {
       if (data.length === 0) {
         return {
-          logic: 0,
-          evidence: 0,
-          impact: 0,
+          reason: 0,
+          example: 0,
+          uniqueness: 0,
           clarity: 0,
-          robustness: 0,
+          respect: 0,
           overall: 0,
         }
       }
       return {
-        logic: data.reduce((sum, d) => sum + d.logic, 0) / data.length,
-        evidence: data.reduce((sum, d) => sum + d.evidence, 0) / data.length,
-        impact: data.reduce((sum, d) => sum + d.impact, 0) / data.length,
+        reason: data.reduce((sum, d) => sum + d.reason, 0) / data.length,
+        example: data.reduce((sum, d) => sum + d.example, 0) / data.length,
+        uniqueness: data.reduce((sum, d) => sum + d.uniqueness, 0) / data.length,
         clarity: data.reduce((sum, d) => sum + d.clarity, 0) / data.length,
-        robustness: data.reduce((sum, d) => sum + d.robustness, 0) / data.length,
+        respect: data.reduce((sum, d) => sum + d.respect, 0) / data.length,
         overall: data.reduce((sum, d) => sum + d.overall, 0) / data.length,
       }
     }
@@ -170,11 +170,11 @@ export default function DisplayPage() {
             {/* 各項目 - グリッドレイアウト */}
             <div className="grid grid-cols-2 gap-2 flex-1 overflow-y-auto">
               {[
-                { key: 'logic', label: '論理性' },
-                { key: 'evidence', label: '証拠' },
-                { key: 'impact', label: '重要性' },
+                { key: 'reason', label: '理由の納得感' },
+                { key: 'example', label: '具体例・エピソード' },
+                { key: 'uniqueness', label: 'ユニークさ・新しい視点' },
                 { key: 'clarity', label: '明確性' },
-                { key: 'robustness', label: '反論耐性' },
+                { key: 'respect', label: '相手への配慮・多角的な視点' },
               ].map((metric) => {
                 const score = teamComparison.teamA.average[metric.key as keyof typeof teamComparison.teamA.average]
                 return (
@@ -240,11 +240,11 @@ export default function DisplayPage() {
             {/* 各項目 - グリッドレイアウト */}
             <div className="grid grid-cols-2 gap-2 flex-1 overflow-y-auto">
               {[
-                { key: 'logic', label: '論理性' },
-                { key: 'evidence', label: '証拠' },
-                { key: 'impact', label: '重要性' },
+                { key: 'reason', label: '理由の納得感' },
+                { key: 'example', label: '具体例・エピソード' },
+                { key: 'uniqueness', label: 'ユニークさ・新しい視点' },
                 { key: 'clarity', label: '明確性' },
-                { key: 'robustness', label: '反論耐性' },
+                { key: 'respect', label: '相手への配慮・多角的な視点' },
               ].map((metric) => {
                 const score = teamComparison.teamB.average[metric.key as keyof typeof teamComparison.teamB.average]
                 return (

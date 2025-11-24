@@ -57,20 +57,20 @@ export default function Home() {
     const calculateAverage = (data: AnalysisData[]) => {
       if (data.length === 0) {
         return {
-          logic: 0,
-          evidence: 0,
-          impact: 0,
+          reason: 0,
+          example: 0,
+          uniqueness: 0,
           clarity: 0,
-          robustness: 0,
+          respect: 0,
           overall: 0,
         }
       }
       return {
-        logic: data.reduce((sum, d) => sum + d.logic, 0) / data.length,
-        evidence: data.reduce((sum, d) => sum + d.evidence, 0) / data.length,
-        impact: data.reduce((sum, d) => sum + d.impact, 0) / data.length,
+        reason: data.reduce((sum, d) => sum + d.reason, 0) / data.length,
+        example: data.reduce((sum, d) => sum + d.example, 0) / data.length,
+        uniqueness: data.reduce((sum, d) => sum + d.uniqueness, 0) / data.length,
         clarity: data.reduce((sum, d) => sum + d.clarity, 0) / data.length,
-        robustness: data.reduce((sum, d) => sum + d.robustness, 0) / data.length,
+        respect: data.reduce((sum, d) => sum + d.respect, 0) / data.length,
         overall: data.reduce((sum, d) => sum + d.overall, 0) / data.length,
       }
     }

@@ -14,12 +14,12 @@ export default function AnalysisChart({ data }: AnalysisChartProps) {
       hour: '2-digit', 
       minute: '2-digit' 
     }),
-    論理性: item.logic,
-    証拠: item.evidence,
-    重要性: item.impact,
-    明確性: item.clarity,
-    反論耐性: item.robustness,
-    総合評価: item.overall,
+    '理由の納得感': item.reason,
+    '具体例・エピソード': item.example,
+    'ユニークさ・新しい視点': item.uniqueness,
+    '言葉の分かりやすさ': item.clarity,
+    '相手への配慮・多角的な視点': item.respect,
+    '総合評価': item.overall,
   }))
 
   return (
@@ -53,7 +53,7 @@ export default function AnalysisChart({ data }: AnalysisChartProps) {
           <Legend />
           <Line 
             type="monotone" 
-            dataKey="論理性" 
+            dataKey="理由の納得感" 
             stroke="#3b82f6" 
             strokeWidth={2}
             dot={{ r: 4 }}
@@ -62,7 +62,7 @@ export default function AnalysisChart({ data }: AnalysisChartProps) {
           />
           <Line 
             type="monotone" 
-            dataKey="証拠" 
+            dataKey="具体例・エピソード" 
             stroke="#10b981" 
             strokeWidth={2}
             dot={{ r: 4 }}
@@ -71,7 +71,7 @@ export default function AnalysisChart({ data }: AnalysisChartProps) {
           />
           <Line 
             type="monotone" 
-            dataKey="重要性" 
+            dataKey="ユニークさ・新しい視点" 
             stroke="#f59e0b" 
             strokeWidth={2}
             dot={{ r: 4 }}
@@ -80,7 +80,7 @@ export default function AnalysisChart({ data }: AnalysisChartProps) {
           />
           <Line 
             type="monotone" 
-            dataKey="明確性" 
+            dataKey="言葉の分かりやすさ" 
             stroke="#8b5cf6" 
             strokeWidth={2}
             dot={{ r: 4 }}
@@ -89,7 +89,7 @@ export default function AnalysisChart({ data }: AnalysisChartProps) {
           />
           <Line 
             type="monotone" 
-            dataKey="反論耐性" 
+            dataKey="相手への配慮・多角的な視点" 
             stroke="#ec4899" 
             strokeWidth={2}
             dot={{ r: 4 }}
@@ -109,4 +109,3 @@ export default function AnalysisChart({ data }: AnalysisChartProps) {
     </div>
   )
 }
-
