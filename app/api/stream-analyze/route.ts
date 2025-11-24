@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
                 },
                 {
                   role: 'user',
-                  content: `あなたはディベートの専門審査員です。以下のディベート内容を厳密に分析し、以下の観点で1-20点の範囲で評価してください。
+                  content: `あなたは中高生向けディベートの専門審査員です。以下のディベート内容を厳密に分析し、以下の観点で1-20点の範囲で評価してください。
 
 # Constraints (制約条件)
 
@@ -51,44 +51,43 @@ export async function POST(request: NextRequest) {
 
 * 出力は、指定されたJSON形式のコードブロックのみとし、それ以外のテキスト（「承知しました」などの前置きや解説）は一切含めないでください。
 
-# Evaluation Criteria (評価基準)
+# Evaluation Criteria (評価基準) - 中高生向け
 
-1. 論理性 (Logic) [20点満点]:
-   * 主張（結論）と理由付け（根拠）が明確に示されているか。
+1. 理由の納得感 (Reason) [20点満点]:
+   * 主張に対する「なぜなら」がしっかり言えているか。論理の飛躍がないか。
    * 主張と理由の間に、論理的な飛躍、矛盾、循環論法がないか。
-   * (評価ヒント: 理由なき主張は低評価。)
+   * (評価ヒント: 理由なき主張は低評価。「なんとなく」ではなく、理由と言葉を結びつける基礎的な論理力があるか。)
 
-2. 証拠 (Evidence) [20点満点]:
-   * 主張を裏付けるための客観的な証拠（統計、データ、専門家の見解、公的な報告書、具体的な事例）が提示されているか。
-   * 「多くの人が」「普通は」といった曖昧な表現や、個人の感想・憶測だけで構成されていないか。
-   * (評価ヒント: 証拠が皆無の場合は1点。)
+2. 具体例・エピソード (Example) [20点満点]:
+   * 統計データではなく、「例えばこういうことです」というたとえ話や自身の経験、身近な事例が含まれているか。
+   * 抽象的な話を具体化する能力があるか。
+   * (評価ヒント: 「証拠」は難しくても、「例え話」なら中高生でも豊富に出せる。具体例が皆無の場合は低評価。)
 
-3. 重要性 (Impact) [20点満点]:
-   * その主張が、論題全体にとって「なぜ重要なのか」が説明されているか。
-   * 主張が認められた場合の影響の「規模（どれだけ広範囲か）」「深刻度（どれだけ重大か）」が示されているか。
-   * (評価ヒント: 「だから何？」という疑問が残る場合は低評価。)
+3. ユニークさ・新しい視点 (Uniqueness) [20点満点]:
+   * ありきたりな意見ではなく、その人ならではの視点や、ハッとするような気づきがあるか。
+   * 「正解」を探すのではなく、自分なりの考えを持っているか。
+   * (評価ヒント: 「だから何？」という疑問が残る場合は低評価。独自性や創造性を評価します。)
 
-4. 明確性 (Clarity) [20点満点]:
-   * 文章全体が明確で、一読して何を主張したいのかが理解できるか。
-   * 曖昧な表現で読者を混乱させていないか。
-   * (評価ヒント: 何を言いたいのか分かりにくい場合は低評価。)
+4. 言葉の分かりやすさ (Clarity) [20点満点]:
+   * 専門用語や難しい言葉を使わず、誰にでもわかる言葉で話しているか。
+   * 結論が先に来ているか（PREP法など）。
+   * (評価ヒント: 何を言いたいのか分かりにくい場合は低評価。「難しいことを簡単に伝える」ことの価値を評価します。)
 
-5. 反論耐性 (Robustness) [20点満点]: 
+5. 相手への配慮・多角的な視点 (Respect) [20点満点]: 
+   * 一方的に自分の意見を押し付けるのではなく、「〜という考えもあるかもしれませんが」のように、反対意見や異なる立場への理解を示しているか。
    * 相手から予想される主要な反論や疑問点に対して、あらかじめ備えができているか。
-   * 主張に、例外や不利な側面を無視するなどの「分かりやすい弱点」が放置されていないか。
-   * 例えば、コスト、倫理的な問題、実現可能性など、論題特有の反論ポイントを考慮しているか。
-   * (評価ヒント: 非常に「一方的」で、想定される反論に脆い議論は低評価。)
+   * (評価ヒント: 非常に「一方的」で、想定される反論に脆い議論は低評価。攻撃力ではなく包容力を評価します。)
 
 ディベート内容：
 ${text}
 
 以下のJSON形式で回答してください（数値は必ず1-20の範囲の整数で、overallは5項目の合計）：
 {
-  "logic": 数値,
-  "evidence": 数値,
-  "impact": 数値,
+  "reason": 数値,
+  "example": 数値,
+  "uniqueness": 数値,
   "clarity": 数値,
-  "robustness": 数値,
+  "respect": 数値,
   "overall": 数値,
   "feedback": "フィードバック文章"
 }`,
@@ -116,21 +115,21 @@ ${text}
               }
               const analysis = JSON.parse(jsonText)
               
-              const logic = Math.max(1, Math.min(20, Math.round(analysis.logic || 10)))
-              const evidence = Math.max(1, Math.min(20, Math.round(analysis.evidence || 10)))
-              const impact = Math.max(1, Math.min(20, Math.round(analysis.impact || 10)))
+              const reason = Math.max(1, Math.min(20, Math.round(analysis.reason || 10)))
+              const example = Math.max(1, Math.min(20, Math.round(analysis.example || 10)))
+              const uniqueness = Math.max(1, Math.min(20, Math.round(analysis.uniqueness || 10)))
               const clarity = Math.max(1, Math.min(20, Math.round(analysis.clarity || 10)))
-              const robustness = Math.max(1, Math.min(20, Math.round(analysis.robustness || 10)))
-              const overall = logic + evidence + impact + clarity + robustness
+              const respect = Math.max(1, Math.min(20, Math.round(analysis.respect || 10)))
+              const overall = reason + example + uniqueness + clarity + respect
               
               send({
                 type: 'complete',
                 data: {
-                  logic,
-                  evidence,
-                  impact,
+                  reason,
+                  example,
+                  uniqueness,
                   clarity,
-                  robustness,
+                  respect,
                   overall,
                   feedback: analysis.feedback || '分析を完了しました。',
                 },
@@ -146,46 +145,46 @@ ${text}
             const wordCount = text.split(/\s+/).length
             const sentenceCount = text.split(/[.!?。！？]/).filter(s => s.trim().length > 0).length
             
-            const logicalConnectors = ['なぜなら', 'したがって', 'つまり', 'しかし', '一方で', 'さらに', 'また', '例えば', 'そのため', '従って']
-            const connectorCount = logicalConnectors.reduce((count, connector) => {
+            const reasonConnectors = ['なぜなら', 'したがって', 'つまり', 'そのため', '従って', 'だから', '理由', '根拠', 'ため', 'ので']
+            const reasonCount = reasonConnectors.reduce((count, connector) => {
               return count + (text.match(new RegExp(connector, 'g')) || []).length
             }, 0)
             
-            const evidenceMarkers = ['データ', '研究', '調査', '統計', '例', '証拠', '根拠', '報告', '論文', '実験']
-            const evidenceCount = evidenceMarkers.reduce((count, marker) => {
+            const exampleMarkers = ['例えば', '例', 'エピソード', '経験', '体験', 'たとえば', '具体', '実際', '身近', 'こんな']
+            const exampleCount = exampleMarkers.reduce((count, marker) => {
               return count + (text.match(new RegExp(marker, 'g')) || []).length
             }, 0)
             
-            const impactMarkers = ['重要', '影響', '効果', '意義', '価値', '必要性', '緊急', '深刻']
-            const impactCount = impactMarkers.reduce((count, marker) => {
+            const uniquenessMarkers = ['独自', '新しい', 'ユニーク', '斬新', '独自の', '新しい視点', '気づき', '発見', '独自性', '創造']
+            const uniquenessCount = uniquenessMarkers.reduce((count, marker) => {
               return count + (text.match(new RegExp(marker, 'g')) || []).length
             }, 0)
             
-            const robustnessMarkers = ['反論', '批判', '疑問', '懸念', '課題', '問題点', '限界', '例外', 'しかし', '一方で']
-            const robustnessCount = robustnessMarkers.reduce((count, marker) => {
+            const respectMarkers = ['一方で', 'しかし', '反対意見', '異なる', '多角的', '配慮', '理解', '立場', '視点', 'かもしれませんが']
+            const respectCount = respectMarkers.reduce((count, marker) => {
               return count + (text.match(new RegExp(marker, 'g')) || []).length
             }, 0)
             
-            const logicScore = sentenceCount > 0 
-              ? Math.max(1, Math.min(20, Math.round((connectorCount / sentenceCount) * 10 + 5)))
+            const reasonScore = sentenceCount > 0 
+              ? Math.max(1, Math.min(20, Math.round((reasonCount / sentenceCount) * 10 + 5)))
               : 5
-            const evidenceScore = evidenceCount > 0
-              ? Math.max(1, Math.min(20, Math.round((evidenceCount / sentenceCount) * 8 + 3)))
+            const exampleScore = exampleCount > 0
+              ? Math.max(1, Math.min(20, Math.round((exampleCount / sentenceCount) * 8 + 3)))
               : 1
-            const impactScore = impactCount > 0
-              ? Math.max(1, Math.min(20, Math.round((impactCount / sentenceCount) * 6 + 5)))
+            const uniquenessScore = uniquenessCount > 0
+              ? Math.max(1, Math.min(20, Math.round((uniquenessCount / sentenceCount) * 6 + 5)))
               : 5
             const clarityScore = Math.max(1, Math.min(20, Math.round((sentenceCount > 0 ? 12 : 5) + (wordCount > 50 ? 5 : 0))))
-            const robustnessScore = robustnessCount > 0
-              ? Math.max(1, Math.min(20, Math.round((robustnessCount / sentenceCount) * 5 + 5)))
+            const respectScore = respectCount > 0
+              ? Math.max(1, Math.min(20, Math.round((respectCount / sentenceCount) * 5 + 5)))
               : 5
             
-            const logic = logicScore
-            const evidence = evidenceScore
-            const impact = impactScore
+            const reason = reasonScore
+            const example = exampleScore
+            const uniqueness = uniquenessScore
             const clarity = clarityScore
-            const robustness = robustnessScore
-            const overall = logic + evidence + impact + clarity + robustness
+            const respect = respectScore
+            const overall = reason + example + uniqueness + clarity + respect
             
             let feedback = ''
             if (overall >= 80) {
@@ -199,11 +198,11 @@ ${text}
             send({
               type: 'complete',
               data: {
-                logic,
-                evidence,
-                impact,
+                reason,
+                example,
+                uniqueness,
                 clarity,
-                robustness,
+                respect,
                 overall,
                 feedback: feedback.trim(),
               },

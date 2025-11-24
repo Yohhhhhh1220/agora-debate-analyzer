@@ -28,7 +28,7 @@ async function analyzeWithOpenAI(text: string, modelName?: string): Promise<Omit
   // 使用するモデルを決定
   const model = modelName || process.env.OPENAI_MODEL || 'gpt-4o-mini-2024-07-18'
 
-  const prompt = `あなたはディベートの専門審査員です。以下のディベート内容を厳密に分析し、以下の観点で1-20点の範囲で評価してください。
+  const prompt = `あなたは中高生向けディベートの専門審査員です。以下のディベート内容を厳密に分析し、以下の観点で1-20点の範囲で評価してください。
 
 # Constraints (制約条件)
 
@@ -38,44 +38,45 @@ async function analyzeWithOpenAI(text: string, modelName?: string): Promise<Omit
 
 * 出力は、指定されたJSON形式のコードブロックのみとし、それ以外のテキスト（「承知しました」などの前置きや解説）は一切含めないでください。
 
-# Evaluation Criteria (評価基準)
+# Evaluation Criteria (評価基準) - 中高生向け
 
-1. 論理性 (Logic) [20点満点]:
-   * 主張（結論）と理由付け（根拠）が明確に示されているか。
-   * 主張と理由の間に、論理的な飛躍、矛盾、循環論法がないか。
-   * (評価ヒント: 理由なき主張は低評価。)
+1. 理由の納得感 (Reason) [20点満点]:
+   * 主張に対する「なぜなら」がしっかり言えているか。
+   * 主張と理由の間に、論理的な飛躍がないか。
+   * 理由が明確で、納得できる内容になっているか。
+   * (評価ヒント: 理由なき主張は低評価。論理の飛躍がある場合は低評価。)
 
-2. 証拠 (Evidence) [20点満点]:
-   * 主張を裏付けるための客観的な証拠（統計、データ、専門家の見解、公的な報告書、具体的な事例）が提示されているか。
-   * 「多くの人が」「普通は」といった曖昧な表現や、個人の感想・憶測だけで構成されていないか。
-   * (評価ヒント: 証拠が皆無の場合は1点。)
+2. 具体例・エピソード (Example) [20点満点]:
+   * 統計データではなく、「例えばこういうことです」というたとえ話や自身の経験、身近な事例が含まれているか。
+   * 抽象的な説明だけでなく、具体的な例やエピソードで説明しているか。
+   * (評価ヒント: 具体例やエピソードが皆無の場合は低評価。)
 
-3. 重要性 (Impact) [20点満点]:
-   * その主張が、論題全体にとって「なぜ重要なのか」が説明されているか。
-   * 主張が認められた場合の影響の「規模（どれだけ広範囲か）」「深刻度（どれだけ重大か）」が示されているか。
-   * (評価ヒント: 「だから何？」という疑問が残る場合は低評価。)
+3. ユニークさ・新しい視点 (Uniqueness) [20点満点]:
+   * ありきたりな意見ではなく、その人ならではの視点や、ハッとするような気づきがあるか。
+   * 独自の考えや新しい角度からの意見が含まれているか。
+   * (評価ヒント: 非常に一般的で誰でも言えるような内容は低評価。)
 
-4. 明確性 (Clarity) [20点満点]:
+4. 言葉の分かりやすさ (Clarity) [20点満点]:
+   * 専門用語や難しい言葉を使わず、誰にでもわかる言葉で話しているか。
+   * 結論が先に来ているか（PREP法など）。
    * 文章全体が明確で、一読して何を主張したいのかが理解できるか。
-   * 曖昧な表現で読者を混乱させていないか。
    * (評価ヒント: 何を言いたいのか分かりにくい場合は低評価。)
 
-5. 反論耐性 (Robustness) [20点満点]: 
-   * 相手から予想される主要な反論や疑問点に対して、あらかじめ備えができているか。
-   * 主張に、例外や不利な側面を無視するなどの「分かりやすい弱点」が放置されていないか。
-   * 例えば、コスト、倫理的な問題、実現可能性など、論題特有の反論ポイントを考慮しているか。
-   * (評価ヒント: 非常に「一方的」で、想定される反論に脆い議論は低評価。)
+5. 相手への配慮・多角的な視点 (Respect) [20点満点]: 
+   * 一方的に自分の意見を押し付けるのではなく、「〜という考えもあるかもしれませんが」のように、反対意見や異なる立場への理解を示しているか。
+   * 相手の立場を尊重し、多角的な視点から議論しているか。
+   * (評価ヒント: 非常に「一方的」で、他の視点を無視する議論は低評価。)
 
 ディベート内容：
 ${text}
 
 以下のJSON形式で厳密に回答してください（数値は必ず1-20の範囲の整数で、overallは5項目の合計）：
 {
-  "logic": 数値,
-  "evidence": 数値,
-  "impact": 数値,
+  "reason": 数値,
+  "example": 数値,
+  "uniqueness": 数値,
   "clarity": 数値,
-  "robustness": 数値,
+  "respect": 数値,
   "overall": 数値,
   "feedback": "具体的なフィードバック文章（日本語、なぜその点数になったのかが明確にわかるように記述）"
 }`
@@ -113,29 +114,29 @@ ${text}
     
     // デバッグ用: 解析されたデータを確認
     console.log('OpenAI API response parsed:', {
-      logic: analysis.logic,
-      evidence: analysis.evidence,
-      impact: analysis.impact,
+      reason: analysis.reason,
+      example: analysis.example,
+      uniqueness: analysis.uniqueness,
       clarity: analysis.clarity,
-      robustness: analysis.robustness,
+      respect: analysis.respect,
       overall: analysis.overall,
     })
     
     // 各項目を1-20の範囲に制限し、整数に変換
-    const logic = Math.max(1, Math.min(20, Math.round(analysis.logic || 10)))
-    const evidence = Math.max(1, Math.min(20, Math.round(analysis.evidence || 10)))
-    const impact = Math.max(1, Math.min(20, Math.round(analysis.impact || 10)))
+    const reason = Math.max(1, Math.min(20, Math.round(analysis.reason || 10)))
+    const example = Math.max(1, Math.min(20, Math.round(analysis.example || 10)))
+    const uniqueness = Math.max(1, Math.min(20, Math.round(analysis.uniqueness || 10)))
     const clarity = Math.max(1, Math.min(20, Math.round(analysis.clarity || 10)))
-    const robustness = Math.max(1, Math.min(20, Math.round(analysis.robustness || 10)))
-    const overall = logic + evidence + impact + clarity + robustness
+    const respect = Math.max(1, Math.min(20, Math.round(analysis.respect || 10)))
+    const overall = reason + example + uniqueness + clarity + respect
     
     return {
       text,
-      logic,
-      evidence,
-      impact,
+      reason,
+      example,
+      uniqueness,
       clarity,
-      robustness,
+      respect,
       overall,
       feedback: analysis.feedback || '分析を完了しました。',
     }
@@ -160,51 +161,51 @@ async function analyzeDebateSimple(text: string): Promise<Omit<AnalysisData, 'id
   const wordCount = text.split(/\s+/).length
   const sentenceCount = text.split(/[.!?。！？]/).filter(s => s.trim().length > 0).length
   
-  // 論理的な接続詞の検出
-  const logicalConnectors = ['なぜなら', 'したがって', 'つまり', 'しかし', '一方で', 'さらに', 'また', '例えば', 'そのため', '従って']
-  const connectorCount = logicalConnectors.reduce((count, connector) => {
+  // 理由を示す接続詞の検出
+  const reasonConnectors = ['なぜなら', 'したがって', 'つまり', 'そのため', '従って', 'だから', '理由', '根拠', 'ため', 'ので']
+  const reasonCount = reasonConnectors.reduce((count, connector) => {
     return count + (text.match(new RegExp(connector, 'g')) || []).length
   }, 0)
   
-  // 証拠を示す表現の検出
-  const evidenceMarkers = ['データ', '研究', '調査', '統計', '例', '証拠', '根拠', '報告', '論文', '実験']
-  const evidenceCount = evidenceMarkers.reduce((count, marker) => {
+  // 具体例・エピソードを示す表現の検出
+  const exampleMarkers = ['例えば', '例', 'エピソード', '経験', '体験', 'たとえば', '具体', '実際', '身近', 'こんな']
+  const exampleCount = exampleMarkers.reduce((count, marker) => {
     return count + (text.match(new RegExp(marker, 'g')) || []).length
   }, 0)
   
-  // 重要性を示す表現の検出
-  const impactMarkers = ['重要', '影響', '効果', '意義', '価値', '必要性', '緊急', '深刻']
-  const impactCount = impactMarkers.reduce((count, marker) => {
+  // ユニークさ・新しい視点を示す表現の検出
+  const uniquenessMarkers = ['独自', '新しい', 'ユニーク', '斬新', '独自の', '新しい視点', '気づき', '発見', '独自性', '創造']
+  const uniquenessCount = uniquenessMarkers.reduce((count, marker) => {
     return count + (text.match(new RegExp(marker, 'g')) || []).length
   }, 0)
   
-  // 反論への言及の検出
-  const robustnessMarkers = ['反論', '批判', '疑問', '懸念', '課題', '問題点', '限界', '例外', 'しかし', '一方で']
-  const robustnessCount = robustnessMarkers.reduce((count, marker) => {
+  // 相手への配慮・多角的な視点を示す表現の検出
+  const respectMarkers = ['一方で', 'しかし', '反対意見', '異なる', '多角的', '配慮', '理解', '立場', '視点', 'かもしれませんが']
+  const respectCount = respectMarkers.reduce((count, marker) => {
     return count + (text.match(new RegExp(marker, 'g')) || []).length
   }, 0)
   
   // スコア計算（簡易版、1-20点に変換）
-  const logicScore = sentenceCount > 0 
-    ? Math.max(1, Math.min(20, Math.round((connectorCount / sentenceCount) * 10 + 5)))
+  const reasonScore = sentenceCount > 0 
+    ? Math.max(1, Math.min(20, Math.round((reasonCount / sentenceCount) * 10 + 5)))
     : 5
-  const evidenceScore = evidenceCount > 0
-    ? Math.max(1, Math.min(20, Math.round((evidenceCount / sentenceCount) * 8 + 3)))
+  const exampleScore = exampleCount > 0
+    ? Math.max(1, Math.min(20, Math.round((exampleCount / sentenceCount) * 8 + 3)))
     : 1
-  const impactScore = impactCount > 0
-    ? Math.max(1, Math.min(20, Math.round((impactCount / sentenceCount) * 6 + 5)))
+  const uniquenessScore = uniquenessCount > 0
+    ? Math.max(1, Math.min(20, Math.round((uniquenessCount / sentenceCount) * 6 + 5)))
     : 5
   const clarityScore = Math.max(1, Math.min(20, Math.round((sentenceCount > 0 ? 12 : 5) + (wordCount > 50 ? 5 : 0))))
-  const robustnessScore = robustnessCount > 0
-    ? Math.max(1, Math.min(20, Math.round((robustnessCount / sentenceCount) * 5 + 5)))
+  const respectScore = respectCount > 0
+    ? Math.max(1, Math.min(20, Math.round((respectCount / sentenceCount) * 5 + 5)))
     : 5
   
-  const logic = logicScore
-  const evidence = evidenceScore
-  const impact = impactScore
+  const reason = reasonScore
+  const example = exampleScore
+  const uniqueness = uniquenessScore
   const clarity = clarityScore
-  const robustness = robustnessScore
-  const overall = logic + evidence + impact + clarity + robustness
+  const respect = respectScore
+  const overall = reason + example + uniqueness + clarity + respect
   
   // フィードバック生成
   let feedback = ''
@@ -216,29 +217,29 @@ async function analyzeDebateSimple(text: string): Promise<Omit<AnalysisData, 'id
     feedback = '改善の余地があります。より明確な論理構造と証拠の提示を心がけてください。'
   }
   
-  if (connectorCount < 2) {
-    feedback += ' 論理的な接続詞をより多く使用することで、論理的な流れがより明確になります。'
+  if (reasonCount < 2) {
+    feedback += ' 「なぜなら」などの理由を示す言葉をより多く使用することで、論理的な流れがより明確になります。'
   }
   
-  if (evidenceCount < 1) {
-    feedback += ' 具体的な証拠やデータを追加することで、主張の説得力が向上します。'
+  if (exampleCount < 1) {
+    feedback += ' 具体例やエピソードを追加することで、主張がより分かりやすくなります。'
   }
   
-  if (impactCount < 1) {
-    feedback += ' 主張の重要性や影響について説明を追加することで、より説得力のある議論になります。'
+  if (uniquenessCount < 1) {
+    feedback += ' 自分なりの視点や気づきを追加することで、より魅力的な議論になります。'
   }
   
-  if (robustnessCount < 1) {
-    feedback += ' 予想される反論への対応を追加することで、議論の堅牢性が向上します。'
+  if (respectCount < 1) {
+    feedback += ' 反対意見や異なる立場への理解を示すことで、より多角的な議論になります。'
   }
   
   return {
     text,
-    logic,
-    evidence,
-    impact,
+    reason,
+    example,
+    uniqueness,
     clarity,
-    robustness,
+    respect,
     overall,
     feedback: feedback.trim(),
   }
