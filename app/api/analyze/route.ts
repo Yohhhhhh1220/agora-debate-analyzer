@@ -34,7 +34,9 @@ async function analyzeWithOpenAI(text: string, modelName?: string): Promise<Omit
 
 * 各評価基準は20点満点（1〜20の整数）で評価します。
 
-* フィードバックは、具体的かつ建設的であり、なぜその点数になったのかが明確にわかるように日本語で記述してください。
+* フィードバックは、「良い点」と「改善する点」の2つに分けて、具体的かつ建設的に日本語で記述してください。
+* 良い点：評価が高い項目や優れている点を具体的に指摘してください。
+* 改善する点：評価が低い項目や改善できる点を具体的に指摘してください。
 
 * 出力は、指定されたJSON形式のコードブロックのみとし、それ以外のテキスト（「承知しました」などの前置きや解説）は一切含めないでください。
 
@@ -78,7 +80,9 @@ ${text}
   "clarity": 数値,
   "respect": 数値,
   "overall": 数値,
-  "feedback": "具体的なフィードバック文章（日本語、なぜその点数になったのかが明確にわかるように記述）"
+  "strengths": "良い点を具体的に記述（日本語、評価が高い項目や優れている点を指摘）",
+  "improvements": "改善する点を具体的に記述（日本語、評価が低い項目や改善できる点を指摘）",
+  "feedback": "strengthsとimprovementsを結合した文章（後方互換性のため）"
 }`
 
   try {
@@ -130,6 +134,11 @@ ${text}
     const respect = Math.max(1, Math.min(20, Math.round(analysis.respect || 10)))
     const overall = reason + example + uniqueness + clarity + respect
     
+    // フィードバックの処理
+    const strengths = analysis.strengths || ''
+    const improvements = analysis.improvements || ''
+    const feedback = analysis.feedback || (strengths && improvements ? `${strengths}\n\n${improvements}` : '分析を完了しました。')
+    
     return {
       text,
       reason,
@@ -138,7 +147,9 @@ ${text}
       clarity,
       respect,
       overall,
-      feedback: analysis.feedback || '分析を完了しました。',
+      feedback,
+      strengths,
+      improvements,
     }
   } catch (error: any) {
     console.error('[API] OpenAI API error:', error)
@@ -207,31 +218,40 @@ async function analyzeDebateSimple(text: string): Promise<Omit<AnalysisData, 'id
   const respect = respectScore
   const overall = reason + example + uniqueness + clarity + respect
   
-  // フィードバック生成
-  let feedback = ''
+  // フィードバック生成（良い点と改善点に分ける）
+  let strengths = ''
+  let improvements = ''
+  
   if (overall >= 80) {
-    feedback = '優れたディベートです。論理的な構成と明確な証拠が提示されています。'
+    strengths = '優れたディベートです。論理的な構成と明確な説明が提示されています。'
   } else if (overall >= 60) {
-    feedback = '良好なディベートです。いくつかの改善点がありますが、基本的な論理構造は整っています。'
+    strengths = '良好なディベートです。基本的な論理構造は整っています。'
   } else {
-    feedback = '改善の余地があります。より明確な論理構造と証拠の提示を心がけてください。'
+    strengths = '基本的な構成は理解できます。'
   }
   
+  const improvementPoints: string[] = []
   if (reasonCount < 2) {
-    feedback += ' 「なぜなら」などの理由を示す言葉をより多く使用することで、論理的な流れがより明確になります。'
+    improvementPoints.push('「なぜなら」などの理由を示す言葉をより多く使用することで、論理的な流れがより明確になります。')
   }
   
   if (exampleCount < 1) {
-    feedback += ' 具体例やエピソードを追加することで、主張がより分かりやすくなります。'
+    improvementPoints.push('具体例やエピソードを追加することで、主張がより分かりやすくなります。')
   }
   
   if (uniquenessCount < 1) {
-    feedback += ' 自分なりの視点や気づきを追加することで、より魅力的な議論になります。'
+    improvementPoints.push('自分なりの視点や気づきを追加することで、より魅力的な議論になります。')
   }
   
   if (respectCount < 1) {
-    feedback += ' 反対意見や異なる立場への理解を示すことで、より多角的な議論になります。'
+    improvementPoints.push('反対意見や異なる立場への理解を示すことで、より多角的な議論になります。')
   }
+  
+  improvements = improvementPoints.length > 0 
+    ? improvementPoints.join(' ') 
+    : 'さらなる向上を目指して、より具体的な例や独自の視点を追加してみてください。'
+  
+  const feedback = `${strengths}\n\n${improvements}`
   
   return {
     text,
@@ -242,6 +262,8 @@ async function analyzeDebateSimple(text: string): Promise<Omit<AnalysisData, 'id
     respect,
     overall,
     feedback: feedback.trim(),
+    strengths: strengths.trim(),
+    improvements: improvements.trim(),
   }
 }
 

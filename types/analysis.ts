@@ -8,7 +8,9 @@ export interface AnalysisData {
   clarity: number // 言葉の分かりやすさ (1-20)
   respect: number // 相手への配慮・多角的な視点 (1-20)
   overall: number // 総合評価 (5-100, 5項目の合計)
-  feedback: string // AIからのフィードバック
+  feedback: string // AIからのフィードバック（後方互換性のため残す）
+  strengths?: string // 良い点
+  improvements?: string // 改善する点
 }
 
 export interface AnalysisRequest {

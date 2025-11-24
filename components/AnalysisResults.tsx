@@ -87,9 +87,25 @@ export default function AnalysisResults({ data }: AnalysisResultsProps) {
         ))}
       </div>
 
-      <div className="mt-6 p-6 bg-gradient-to-br from-blue-50/80 to-blue-100/40 rounded-2xl border border-blue-200/60 shadow-soft">
-        <h3 className="text-sm font-bold text-blue-900 mb-3 tracking-tight uppercase">AIフィードバック</h3>
-        <p className="text-sm text-slate-700 leading-relaxed font-medium">{data.feedback}</p>
+      <div className="mt-6 space-y-4">
+        {data.strengths && (
+          <div className="p-6 bg-gradient-to-br from-green-50/80 to-green-100/40 rounded-2xl border border-green-200/60 shadow-soft">
+            <h3 className="text-sm font-bold text-green-900 mb-3 tracking-tight uppercase">✨ 良い点</h3>
+            <p className="text-sm text-slate-700 leading-relaxed font-medium">{data.strengths}</p>
+          </div>
+        )}
+        {data.improvements && (
+          <div className="p-6 bg-gradient-to-br from-orange-50/80 to-orange-100/40 rounded-2xl border border-orange-200/60 shadow-soft">
+            <h3 className="text-sm font-bold text-orange-900 mb-3 tracking-tight uppercase">📈 改善する点</h3>
+            <p className="text-sm text-slate-700 leading-relaxed font-medium">{data.improvements}</p>
+          </div>
+        )}
+        {!data.strengths && !data.improvements && (
+          <div className="p-6 bg-gradient-to-br from-blue-50/80 to-blue-100/40 rounded-2xl border border-blue-200/60 shadow-soft">
+            <h3 className="text-sm font-bold text-blue-900 mb-3 tracking-tight uppercase">AIフィードバック</h3>
+            <p className="text-sm text-slate-700 leading-relaxed font-medium">{data.feedback}</p>
+          </div>
+        )}
       </div>
 
       <div className="text-xs text-slate-400 text-right font-medium">

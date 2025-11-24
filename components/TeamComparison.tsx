@@ -192,15 +192,47 @@ export default function TeamComparison({ comparison }: TeamComparisonProps) {
       {(teamA.latest || teamB.latest) && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {teamA.latest && (
-            <div className="p-6 bg-gradient-to-br from-blue-50/80 to-blue-100/40 rounded-2xl border border-blue-200/60 shadow-soft">
+            <div className="space-y-4">
               <h4 className="text-base font-bold text-blue-900 mb-3 tracking-tight">チームA 最新フィードバック</h4>
-              <p className="text-sm text-slate-700 leading-relaxed font-medium">{teamA.latest.feedback}</p>
+              {teamA.latest.strengths && (
+                <div className="p-4 bg-gradient-to-br from-green-50/80 to-green-100/40 rounded-xl border border-green-200/60 shadow-soft">
+                  <h5 className="text-xs font-bold text-green-900 mb-2 tracking-tight uppercase">✨ 良い点</h5>
+                  <p className="text-sm text-slate-700 leading-relaxed font-medium">{teamA.latest.strengths}</p>
+                </div>
+              )}
+              {teamA.latest.improvements && (
+                <div className="p-4 bg-gradient-to-br from-orange-50/80 to-orange-100/40 rounded-xl border border-orange-200/60 shadow-soft">
+                  <h5 className="text-xs font-bold text-orange-900 mb-2 tracking-tight uppercase">📈 改善する点</h5>
+                  <p className="text-sm text-slate-700 leading-relaxed font-medium">{teamA.latest.improvements}</p>
+                </div>
+              )}
+              {!teamA.latest.strengths && !teamA.latest.improvements && (
+                <div className="p-4 bg-gradient-to-br from-blue-50/80 to-blue-100/40 rounded-xl border border-blue-200/60 shadow-soft">
+                  <p className="text-sm text-slate-700 leading-relaxed font-medium">{teamA.latest.feedback}</p>
+                </div>
+              )}
             </div>
           )}
           {teamB.latest && (
-            <div className="p-6 bg-gradient-to-br from-red-50/80 to-red-100/40 rounded-2xl border border-red-200/60 shadow-soft">
+            <div className="space-y-4">
               <h4 className="text-base font-bold text-red-900 mb-3 tracking-tight">チームB 最新フィードバック</h4>
-              <p className="text-sm text-slate-700 leading-relaxed font-medium">{teamB.latest.feedback}</p>
+              {teamB.latest.strengths && (
+                <div className="p-4 bg-gradient-to-br from-green-50/80 to-green-100/40 rounded-xl border border-green-200/60 shadow-soft">
+                  <h5 className="text-xs font-bold text-green-900 mb-2 tracking-tight uppercase">✨ 良い点</h5>
+                  <p className="text-sm text-slate-700 leading-relaxed font-medium">{teamB.latest.strengths}</p>
+                </div>
+              )}
+              {teamB.latest.improvements && (
+                <div className="p-4 bg-gradient-to-br from-orange-50/80 to-orange-100/40 rounded-xl border border-orange-200/60 shadow-soft">
+                  <h5 className="text-xs font-bold text-orange-900 mb-2 tracking-tight uppercase">📈 改善する点</h5>
+                  <p className="text-sm text-slate-700 leading-relaxed font-medium">{teamB.latest.improvements}</p>
+                </div>
+              )}
+              {!teamB.latest.strengths && !teamB.latest.improvements && (
+                <div className="p-4 bg-gradient-to-br from-red-50/80 to-red-100/40 rounded-xl border border-red-200/60 shadow-soft">
+                  <p className="text-sm text-slate-700 leading-relaxed font-medium">{teamB.latest.feedback}</p>
+                </div>
+              )}
             </div>
           )}
         </div>
