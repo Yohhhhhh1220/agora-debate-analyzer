@@ -25,7 +25,7 @@ const baseUrl = getBaseUrl()
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: 'アゴラ - AIリアルタイムディベート分析サポート',
-  description: 'AIリアルタイムディベート分析サポート。ディベートの正確性と論理性をAIがリアルタイムに判定・可視化します。',
+  description: 'AIリアルタイムディベート分析サポート。中高生向けに設計された5つの評価項目で、ディベートをAIがリアルタイムに判定・可視化します。',
   icons: {
     icon: '/favicon.png',
     shortcut: '/favicon.png',
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'アゴラ - AIリアルタイムディベート分析サポート',
-    description: 'AIリアルタイムディベート分析サポート。ディベートの正確性と論理性をAIがリアルタイムに判定・可視化します。',
+    description: 'AIリアルタイムディベート分析サポート。中高生向けに設計された5つの評価項目で、ディベートをAIがリアルタイムに判定・可視化します。',
     url: baseUrl,
     siteName: 'アゴラ',
     images: [
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'アゴラ - AIリアルタイムディベート分析サポート',
-    description: 'AIリアルタイムディベート分析サポート。ディベートの正確性と論理性をAIがリアルタイムに判定・可視化します。',
+    description: 'AIリアルタイムディベート分析サポート。中高生向けに設計された5つの評価項目で、ディベートをAIがリアルタイムに判定・可視化します。',
     images: [`${baseUrl}/logo.png`],
   },
 }
