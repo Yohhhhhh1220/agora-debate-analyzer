@@ -43,7 +43,7 @@ export default function TeamComparison({ comparison }: TeamComparisonProps) {
     { key: 'reason', label: '理由の納得感' },
     { key: 'example', label: '具体例・エピソード' },
     { key: 'uniqueness', label: 'ユニークさ・新しい視点' },
-    { key: 'clarity', label: '明確性' },
+    { key: 'clarity', label: '言葉の分かりやすさ' },
     { key: 'respect', label: '相手への配慮・多角的な視点' },
   ] as const
 
@@ -77,29 +77,36 @@ export default function TeamComparison({ comparison }: TeamComparisonProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* チームA */}
         <div className="border border-blue-200/60 rounded-2xl p-6 bg-gradient-to-br from-blue-50/50 to-blue-100/30 shadow-soft">
-          <h3 className="text-xl font-bold text-blue-900 mb-6 tracking-tight">チームA 平均スコア</h3>
+          <h3 className="text-xl font-bold text-blue-900 mb-6 tracking-tight">チームA 最新スコア</h3>
           
           {/* 総合評価を大きく表示 */}
-          <div className={`mb-8 p-6 rounded-2xl ${getScoreBgColor(teamA.average.overall, true)} shadow-soft border border-slate-200/50`}>
-            <div className="text-sm font-semibold text-slate-600 mb-3 tracking-wide uppercase">総合評価</div>
-            <div className={`text-5xl font-bold ${getScoreColor(teamA.average.overall, true)} mb-4 tracking-tight`}>
-              {formatScore(teamA.average.overall)}点
+          {teamA.latest ? (
+            <div className={`mb-8 p-6 rounded-2xl ${getScoreBgColor(teamA.latest.overall, true)} shadow-soft border border-slate-200/50`}>
+              <div className="text-sm font-semibold text-slate-600 mb-3 tracking-wide uppercase">総合評価</div>
+              <div className={`text-5xl font-bold ${getScoreColor(teamA.latest.overall, true)} mb-4 tracking-tight`}>
+                {formatScore(teamA.latest.overall)}点
+              </div>
+              <div className="w-full bg-slate-200/60 rounded-full h-3.5 overflow-hidden">
+                <div
+                  className={`h-3.5 rounded-full transition-all duration-500 ${
+                    teamA.latest.overall >= 80 ? 'bg-gradient-to-r from-green-500 to-green-600' :
+                    teamA.latest.overall >= 60 ? 'bg-gradient-to-r from-yellow-500 to-yellow-600' : 'bg-gradient-to-r from-red-500 to-red-600'
+                  }`}
+                  style={{ width: `${teamA.latest.overall}%` }}
+                />
+              </div>
             </div>
-            <div className="w-full bg-slate-200/60 rounded-full h-3.5 overflow-hidden">
-              <div
-                className={`h-3.5 rounded-full transition-all duration-500 ${
-                  teamA.average.overall >= 80 ? 'bg-gradient-to-r from-green-500 to-green-600' :
-                  teamA.average.overall >= 60 ? 'bg-gradient-to-r from-yellow-500 to-yellow-600' : 'bg-gradient-to-r from-red-500 to-red-600'
-                }`}
-                style={{ width: `${teamA.average.overall}%` }}
-              />
+          ) : (
+            <div className="mb-8 p-6 rounded-2xl bg-slate-100 shadow-soft border border-slate-200/50">
+              <div className="text-sm font-semibold text-slate-600 mb-3 tracking-wide uppercase">総合評価</div>
+              <div className="text-5xl font-bold text-slate-400 mb-4 tracking-tight">-点</div>
             </div>
-          </div>
+          )}
 
           {/* 各項目 */}
           <div className="space-y-4">
             {metrics.map((metric) => {
-              const score = teamA.average[metric.key]
+              const score = teamA.latest ? teamA.latest[metric.key] : 0
               return (
                 <div key={metric.key} className="bg-white/60 rounded-xl p-4 border border-slate-200/50">
                   <div className="flex items-center justify-between mb-2">
@@ -126,29 +133,36 @@ export default function TeamComparison({ comparison }: TeamComparisonProps) {
 
         {/* チームB */}
         <div className="border border-red-200/60 rounded-2xl p-6 bg-gradient-to-br from-red-50/50 to-red-100/30 shadow-soft">
-          <h3 className="text-xl font-bold text-red-900 mb-6 tracking-tight">チームB 平均スコア</h3>
+          <h3 className="text-xl font-bold text-red-900 mb-6 tracking-tight">チームB 最新スコア</h3>
           
           {/* 総合評価を大きく表示 */}
-          <div className={`mb-8 p-6 rounded-2xl ${getScoreBgColor(teamB.average.overall, true)} shadow-soft border border-slate-200/50`}>
-            <div className="text-sm font-semibold text-slate-600 mb-3 tracking-wide uppercase">総合評価</div>
-            <div className={`text-5xl font-bold ${getScoreColor(teamB.average.overall, true)} mb-4 tracking-tight`}>
-              {formatScore(teamB.average.overall)}点
+          {teamB.latest ? (
+            <div className={`mb-8 p-6 rounded-2xl ${getScoreBgColor(teamB.latest.overall, true)} shadow-soft border border-slate-200/50`}>
+              <div className="text-sm font-semibold text-slate-600 mb-3 tracking-wide uppercase">総合評価</div>
+              <div className={`text-5xl font-bold ${getScoreColor(teamB.latest.overall, true)} mb-4 tracking-tight`}>
+                {formatScore(teamB.latest.overall)}点
+              </div>
+              <div className="w-full bg-slate-200/60 rounded-full h-3.5 overflow-hidden">
+                <div
+                  className={`h-3.5 rounded-full transition-all duration-500 ${
+                    teamB.latest.overall >= 80 ? 'bg-gradient-to-r from-green-500 to-green-600' :
+                    teamB.latest.overall >= 60 ? 'bg-gradient-to-r from-yellow-500 to-yellow-600' : 'bg-gradient-to-r from-red-500 to-red-600'
+                  }`}
+                  style={{ width: `${teamB.latest.overall}%` }}
+                />
+              </div>
             </div>
-            <div className="w-full bg-slate-200/60 rounded-full h-3.5 overflow-hidden">
-              <div
-                className={`h-3.5 rounded-full transition-all duration-500 ${
-                  teamB.average.overall >= 80 ? 'bg-gradient-to-r from-green-500 to-green-600' :
-                  teamB.average.overall >= 60 ? 'bg-gradient-to-r from-yellow-500 to-yellow-600' : 'bg-gradient-to-r from-red-500 to-red-600'
-                }`}
-                style={{ width: `${teamB.average.overall}%` }}
-              />
+          ) : (
+            <div className="mb-8 p-6 rounded-2xl bg-slate-100 shadow-soft border border-slate-200/50">
+              <div className="text-sm font-semibold text-slate-600 mb-3 tracking-wide uppercase">総合評価</div>
+              <div className="text-5xl font-bold text-slate-400 mb-4 tracking-tight">-点</div>
             </div>
-          </div>
+          )}
 
           {/* 各項目 */}
           <div className="space-y-4">
             {metrics.map((metric) => {
-              const score = teamB.average[metric.key]
+              const score = teamB.latest ? teamB.latest[metric.key] : 0
               return (
                 <div key={metric.key} className="bg-white/60 rounded-xl p-4 border border-slate-200/50">
                   <div className="flex items-center justify-between mb-2">

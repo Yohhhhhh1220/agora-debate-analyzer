@@ -79,12 +79,16 @@ export default function Home() {
     const teamBAvg = calculateAverage(teamBData)
 
     let winner: 'A' | 'B' | 'Tie' | null = null
-    if (teamAData.length > 0 || teamBData.length > 0) {
-      if (teamAAvg.overall > teamBAvg.overall + 2) {
+    const teamALatest = teamAData.length > 0 ? teamAData[teamAData.length - 1] : null
+    const teamBLatest = teamBData.length > 0 ? teamBData[teamBData.length - 1] : null
+    if (teamALatest || teamBLatest) {
+      const teamAScore = teamALatest ? teamALatest.overall : 0
+      const teamBScore = teamBLatest ? teamBLatest.overall : 0
+      if (teamAScore > teamBScore + 2) {
         winner = 'A'
-      } else if (teamBAvg.overall > teamAAvg.overall + 2) {
+      } else if (teamBScore > teamAScore + 2) {
         winner = 'B'
-      } else if (teamAData.length > 0 && teamBData.length > 0) {
+      } else if (teamALatest && teamBLatest) {
         winner = 'Tie'
       }
     }

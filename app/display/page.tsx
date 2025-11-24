@@ -70,12 +70,16 @@ export default function DisplayPage() {
     const teamBAvg = calculateAverage(teamBData)
 
     let winner: 'A' | 'B' | 'Tie' | null = null
-    if (teamAData.length > 0 || teamBData.length > 0) {
-      if (teamAAvg.overall > teamBAvg.overall + 2) {
+    const teamALatest = teamAData.length > 0 ? teamAData[teamAData.length - 1] : null
+    const teamBLatest = teamBData.length > 0 ? teamBData[teamBData.length - 1] : null
+    if (teamALatest || teamBLatest) {
+      const teamAScore = teamALatest ? teamALatest.overall : 0
+      const teamBScore = teamBLatest ? teamBLatest.overall : 0
+      if (teamAScore > teamBScore + 2) {
         winner = 'A'
-      } else if (teamBAvg.overall > teamAAvg.overall + 2) {
+      } else if (teamBScore > teamAScore + 2) {
         winner = 'B'
-      } else if (teamAData.length > 0 && teamBData.length > 0) {
+      } else if (teamALatest && teamBLatest) {
         winner = 'Tie'
       }
     }
@@ -148,24 +152,33 @@ export default function DisplayPage() {
             </h2>
             
             {/* 総合評価 */}
-            <div className={`mb-3 p-4 rounded-2xl ${getScoreBgColor(teamComparison.teamA.average.overall, true)} shadow-xl border-2 border-white/20 flex-shrink-0`}>
-              <div className="text-sm font-bold text-slate-700 mb-2 text-center uppercase tracking-wide">
-                総合評価
+            {teamComparison.teamA.latest ? (
+              <div className={`mb-3 p-4 rounded-2xl ${getScoreBgColor(teamComparison.teamA.latest.overall, true)} shadow-xl border-2 border-white/20 flex-shrink-0`}>
+                <div className="text-sm font-bold text-slate-700 mb-2 text-center uppercase tracking-wide">
+                  総合評価
+                </div>
+                <div className={`text-7xl font-bold ${getScoreColor(teamComparison.teamA.latest.overall, true)} mb-3 text-center tracking-tight`}>
+                  {formatScore(teamComparison.teamA.latest.overall)}点
+                </div>
+                <div className="w-full bg-slate-300/60 rounded-full h-4 overflow-hidden">
+                  <div
+                    className={`h-4 rounded-full transition-all duration-500 ${
+                      teamComparison.teamA.latest.overall >= 80 ? 'bg-gradient-to-r from-green-500 to-green-600' :
+                      teamComparison.teamA.latest.overall >= 60 ? 'bg-gradient-to-r from-yellow-500 to-yellow-600' : 
+                      'bg-gradient-to-r from-red-500 to-red-600'
+                    }`}
+                    style={{ width: `${teamComparison.teamA.latest.overall}%` }}
+                  />
+                </div>
               </div>
-              <div className={`text-7xl font-bold ${getScoreColor(teamComparison.teamA.average.overall, true)} mb-3 text-center tracking-tight`}>
-                {formatScore(teamComparison.teamA.average.overall)}点
+            ) : (
+              <div className="mb-3 p-4 rounded-2xl bg-slate-700/80 shadow-xl border-2 border-white/20 flex-shrink-0">
+                <div className="text-sm font-bold text-slate-300 mb-2 text-center uppercase tracking-wide">
+                  総合評価
+                </div>
+                <div className="text-7xl font-bold text-slate-500 mb-3 text-center tracking-tight">-点</div>
               </div>
-              <div className="w-full bg-slate-300/60 rounded-full h-4 overflow-hidden">
-                <div
-                  className={`h-4 rounded-full transition-all duration-500 ${
-                    teamComparison.teamA.average.overall >= 80 ? 'bg-gradient-to-r from-green-500 to-green-600' :
-                    teamComparison.teamA.average.overall >= 60 ? 'bg-gradient-to-r from-yellow-500 to-yellow-600' : 
-                    'bg-gradient-to-r from-red-500 to-red-600'
-                  }`}
-                  style={{ width: `${teamComparison.teamA.average.overall}%` }}
-                />
-              </div>
-            </div>
+            )}
 
             {/* 各項目 - グリッドレイアウト */}
             <div className="grid grid-cols-2 gap-2 flex-1 overflow-y-auto">
@@ -173,10 +186,10 @@ export default function DisplayPage() {
                 { key: 'reason', label: '理由の納得感' },
                 { key: 'example', label: '具体例・エピソード' },
                 { key: 'uniqueness', label: 'ユニークさ・新しい視点' },
-                { key: 'clarity', label: '明確性' },
+                { key: 'clarity', label: '言葉の分かりやすさ' },
                 { key: 'respect', label: '相手への配慮・多角的な視点' },
               ].map((metric) => {
-                const score = teamComparison.teamA.average[metric.key as keyof typeof teamComparison.teamA.average]
+                const score = teamComparison.teamA.latest ? (teamComparison.teamA.latest[metric.key as keyof typeof teamComparison.teamA.latest] as number) : 0
                 return (
                   <div key={metric.key} className="bg-white/80 rounded-xl py-3 px-3 border-2 border-white/50 flex flex-col h-full">
                     <span className="text-xl font-bold text-slate-800 mb-2 text-left flex-shrink-0">{metric.label}</span>
@@ -218,24 +231,33 @@ export default function DisplayPage() {
             </h2>
             
             {/* 総合評価 */}
-            <div className={`mb-3 p-4 rounded-2xl ${getScoreBgColor(teamComparison.teamB.average.overall, true)} shadow-xl border-2 border-white/20 flex-shrink-0`}>
-              <div className="text-sm font-bold text-slate-700 mb-2 text-center uppercase tracking-wide">
-                総合評価
+            {teamComparison.teamB.latest ? (
+              <div className={`mb-3 p-4 rounded-2xl ${getScoreBgColor(teamComparison.teamB.latest.overall, true)} shadow-xl border-2 border-white/20 flex-shrink-0`}>
+                <div className="text-sm font-bold text-slate-700 mb-2 text-center uppercase tracking-wide">
+                  総合評価
+                </div>
+                <div className={`text-7xl font-bold ${getScoreColor(teamComparison.teamB.latest.overall, true)} mb-3 text-center tracking-tight`}>
+                  {formatScore(teamComparison.teamB.latest.overall)}点
+                </div>
+                <div className="w-full bg-slate-300/60 rounded-full h-4 overflow-hidden">
+                  <div
+                    className={`h-4 rounded-full transition-all duration-500 ${
+                      teamComparison.teamB.latest.overall >= 80 ? 'bg-gradient-to-r from-green-500 to-green-600' :
+                      teamComparison.teamB.latest.overall >= 60 ? 'bg-gradient-to-r from-yellow-500 to-yellow-600' : 
+                      'bg-gradient-to-r from-red-500 to-red-600'
+                    }`}
+                    style={{ width: `${teamComparison.teamB.latest.overall}%` }}
+                  />
+                </div>
               </div>
-              <div className={`text-7xl font-bold ${getScoreColor(teamComparison.teamB.average.overall, true)} mb-3 text-center tracking-tight`}>
-                {formatScore(teamComparison.teamB.average.overall)}点
+            ) : (
+              <div className="mb-3 p-4 rounded-2xl bg-slate-700/80 shadow-xl border-2 border-white/20 flex-shrink-0">
+                <div className="text-sm font-bold text-slate-300 mb-2 text-center uppercase tracking-wide">
+                  総合評価
+                </div>
+                <div className="text-7xl font-bold text-slate-500 mb-3 text-center tracking-tight">-点</div>
               </div>
-              <div className="w-full bg-slate-300/60 rounded-full h-4 overflow-hidden">
-                <div
-                  className={`h-4 rounded-full transition-all duration-500 ${
-                    teamComparison.teamB.average.overall >= 80 ? 'bg-gradient-to-r from-green-500 to-green-600' :
-                    teamComparison.teamB.average.overall >= 60 ? 'bg-gradient-to-r from-yellow-500 to-yellow-600' : 
-                    'bg-gradient-to-r from-red-500 to-red-600'
-                  }`}
-                  style={{ width: `${teamComparison.teamB.average.overall}%` }}
-                />
-              </div>
-            </div>
+            )}
 
             {/* 各項目 - グリッドレイアウト */}
             <div className="grid grid-cols-2 gap-2 flex-1 overflow-y-auto">
@@ -243,10 +265,10 @@ export default function DisplayPage() {
                 { key: 'reason', label: '理由の納得感' },
                 { key: 'example', label: '具体例・エピソード' },
                 { key: 'uniqueness', label: 'ユニークさ・新しい視点' },
-                { key: 'clarity', label: '明確性' },
+                { key: 'clarity', label: '言葉の分かりやすさ' },
                 { key: 'respect', label: '相手への配慮・多角的な視点' },
               ].map((metric) => {
-                const score = teamComparison.teamB.average[metric.key as keyof typeof teamComparison.teamB.average]
+                const score = teamComparison.teamB.latest ? (teamComparison.teamB.latest[metric.key as keyof typeof teamComparison.teamB.latest] as number) : 0
                 return (
                   <div key={metric.key} className="bg-white/80 rounded-xl py-3 px-3 border-2 border-white/50 flex flex-col h-full">
                     <span className="text-xl font-bold text-slate-800 mb-2 text-left flex-shrink-0">{metric.label}</span>
